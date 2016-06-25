@@ -39,6 +39,8 @@ void setup()
 M590.begin(9600);
  // give time to log on to network.
 delay(5500);
+M590.print("ATE0\r");
+delay(500);
 M590.print("AT+CMGF=1\r");  // set SMS mode to text
 Serial.println("set SMS mode to txt");  // set SMS mode to text
 delay(5500);
@@ -72,11 +74,9 @@ while(M590.available() > 0) {
   }
   Serial.println("Ready...");
 }
- 
-void loop() 
+
+void smsG()
 {
-  if(M590.available()>0)
-    {
     inchar=M590.read(); 
     //Serial.write(inchar);
     callID += inchar;
@@ -100,13 +100,12 @@ void loop()
   if (StrCallID1 == conTrol){
     if (inchar=='#')
     {
-      delay(10);
+      callID = "";
  
       inchar=M590.read(); 
       if (inchar=='a')
-      {
-        delay(10);       
-       inchar=M590.read();
+      {     
+        inchar=M590.read();
         if (inchar=='0')
         {
           digitalWrite(led1, LOW);
@@ -117,11 +116,10 @@ void loop()
           digitalWrite(led1, HIGH);
           Serial.println("LED1 on");
         }
-        delay(10);
          }
        else if (inchar=='b')
         {
-      inchar=M590.read(); 
+          inchar=M590.read(); 
           if (inchar=='0')
           {
             digitalWrite(led2, LOW);
@@ -132,11 +130,10 @@ void loop()
             digitalWrite(led2, HIGH);
             Serial.println("LED2 on");
           }
-          delay(10);
           }
          else if (inchar=='c')
           {
-      inchar=M590.read(); 
+            inchar=M590.read(); 
             if (inchar=='0')
             {
               digitalWrite(led3, LOW);
@@ -147,11 +144,10 @@ void loop()
               digitalWrite(led3, HIGH);
               Serial.println("LED3 on");
             }
-            delay(10);
           }
           else if (inchar=='d')
           {
-       inchar=M590.read(); 
+              inchar=M590.read(); 
               if (inchar=='0')
               {
                 digitalWrite(led4, LOW);
@@ -162,13 +158,29 @@ void loop()
                 digitalWrite(led4, HIGH);
                 Serial.println("LED4 on");
               }
-              delay(10);
             }
+            else if (inchar=='e')
+            {
+              inchar=M590.read(); 
+              if (inchar=='0')
+              {
+
+              } 
+              else if (inchar=='1')
+              {
+             Serial.println("delete all SMS....");
              M590.println("AT+CMGD=1,4"); // delete all SMS
-             Serial.println("delete all SMS"); // delete all SMS   
-        }
-      } 
-    }
+             Serial.println("All SMS Deleted"); // delete all SMS   
+             }
+          }
+      }
+   }
+} 
+ 
+void loop() 
+{
+  while(M590.available()){
+    smsG();
+  }
+    //This is where to do some interesting stuff......
 }
-    
-  
