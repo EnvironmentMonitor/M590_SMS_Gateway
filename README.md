@@ -1,6 +1,6 @@
 #<IMG SRC="https://raw.githubusercontent.com/downtrodden/monitor/gh-pages/M590_Arduino_small.jpg" HEIGHT="200" BORDER="1"> M590 Serial SMS Gateway
 
-<strong>M590 GPRS<\strong> Breakout Module with ESP8266 and Arduino sketches.
+<strong>M590 GPRS</strong> Breakout Module with ESP8266 and Arduino sketches.
 
 The most reliable power source is a LIPO, any cheap Power Bank (2.1A IPAD Type)
 
