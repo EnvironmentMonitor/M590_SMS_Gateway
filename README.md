@@ -2,6 +2,8 @@
 
 <strong>M590 GPRS</strong> Breakout Module with <strong>ESP8266</strong> and <strong>Arduino</strong> sketches.
 
+The only Library used is Software Serial......
+
 The most reliable power source is a LIPO, any cheap Power Bank (2.1A IPAD Type)
 
 Try a Different SIM if there is repeated failure to AT+CCID...
