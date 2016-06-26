@@ -4,6 +4,7 @@
 //  
 //  Added Nunber Verification (Full International Number required)
 //  Added Response to incomming number, useful for returning sensor data etc...
+//  Added Example sensor reply......
 //  The Power Supply needs to be able to produce 5v 2A for RF to function(After Drop over diode ~4.5v)
 //  If there are any problems, the PSU is the most likely cause, 
 //  Only UK Networks tested
@@ -169,13 +170,20 @@ void smsG()
               inchar=M590.read(); 
               if (inchar=='0')
               {
+              delay(250);
+              int analogV = analogRead(A0);
+              String analogS = "";
+              analogS += analogV;
+              delay(250);
               M590.print("AT+CMGS=\"" + StrCallID1 + "\"\r\n");  // Number to reply to from incomming message
               delay(1500);
-              M590.print("HELLO WORLD....");//message content
+              M590.print("Sensor Value = ");//message content
+              delay(500);
+              M590.print(analogS);//message content
               delay(500);
               M590.write(0x1a);     // send out SMS
               delay(1000);
-              } 
+              }
               else if (inchar=='1')
               {
              Serial.println("delete all SMS....");
