@@ -14,4 +14,4 @@ Send SMS containing #e0 to read sensor and recieve a reply with the data....
 
 Send SMS containing #e1 to clear SMS
 
-<IMG SRC="http://downtrodden.16mb.com/M590_Arduino_small.jpg" WIDTH="250" HEIGHT="375" BORDER="1">
+<IMG SRC="https://raw.githubusercontent.com/downtrodden/monitor/gh-pages/M590_Arduino_small.jpg" HEIGHT="375" BORDER="1">
