@@ -27,7 +27,7 @@ int led1 = 10;
 int led2 = 11;
 int led3 = 12;
 int led4 = 13;
-
+int LiNe = 0;
 
 
 
@@ -89,7 +89,7 @@ void smsG()
   inchar=M590.read(); 
   delay(50);
   callID += inchar;
-  if (inchar == '\n'){// Data +CMT: "+440000000000"
+  if (inchar == '\n'){// First Line of Data +CMT: "+440000000000"
      Serial.println(callID);
      StrCallID = callID.substring(0,4);
    if (StrCallID =="+CMT"){
@@ -99,7 +99,7 @@ void smsG()
       Serial.println(StrCallID1);
      if (StrCallID1 == conTrol){
       Serial.println("Number Verified.....");
-      conTrolF = true;
+      if (LiNe == 0){conTrolF = true;}
       }else{
       Serial.println("Verification Failed, Control Not Permitted");
       conTrolF = false;
@@ -136,7 +136,7 @@ void smsG()
               String analogS = "";
               analogS += analogV;
               delay(250);
-              Serial.println("SMS Content : " + analogS);  // uncomment the lines below to send sms......
+              Serial.println("SMS Content : " + analogS);
             //  M590.print("AT+CMGS=\"" + StrCallID1 + "\"\r\n");  // Number to reply to from incomming message
             //  delay(2000);
             //  M590.print("Sensor Value = " + analogS);//message content
@@ -152,6 +152,7 @@ void smsG()
       }
     }
   callID="";
+  LiNe++;
   }
 } 
  
@@ -160,5 +161,7 @@ void loop()
   while(M590.available()){
     smsG();
   }
+  conTrolF = false;
+  LiNe = 0;
     //This is where to do some interesting stuff......
 }
