@@ -99,9 +99,11 @@ void smsG()
      if (StrCallID1 == conTrol){
       Serial.println("Number Verified.....");
       if (LiNe == 0){conTrolF = true;}
+        LiNe++;
       }else{
       Serial.println("Verification Failed, Control Not Permitted");
       conTrolF = false;
+        LiNe++;
       }
     callID="";
     }else if (StrCallID =="#a00"){
@@ -151,7 +153,6 @@ void smsG()
       }
     }
   callID="";
-  LiNe++;
   }
 } 
  
