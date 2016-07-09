@@ -1,7 +1,7 @@
 //
 //  Rewrite for M590 GPRS module
 //  http://www.banggood.com/GSM-GPRS-SIM900-1800MHz-Short-Message-Service-m590-SMS-Module-DIY-Kit-For-Arduino-p-1043437.html
-//  
+//  Allowing any caller to turn LED's On or Off restricting control of GSM
 //  Added Nunber Verification (Full International Number required)
 //  Added Response to incomming number, useful for returning sensor data etc...
 //  Added Example sensor reply......
@@ -11,18 +11,25 @@
 //  the SIM choice can also cause issues, EE caused numerous failures, Vodafone failed about 20%
 //  but Tesco/O2 seems to connect every time, although the SMS Delivery can take Longer 
  
+
+ 
 #include <SoftwareSerial.h> 
-char inchar;                    // Will hold the incoming character from the GSM shield
-String conTrol = "00000000000"; // Only allow control from this number....
 SoftwareSerial M590(12, 13);    // Rx, Tx
-String callID = "";
-String StrCallID = "";
-String StrCallID1 = "";
+char inchar;                     // Will hold the incoming character from the GSM shield
+String conTrol = "XXXXXXXXXXXX"; // Only allow control from this number.... format 440000000000 Inc Country Code
+boolean conTrolF = false;        // set true when number verifies ok
+String callID = "";              // line of text from gsm
+String StrCallID = "";           // command selection 
+String StrCallID1 = "";          // number being verified
+
 int led1 = 4;
 int led2 = 5;
 int led3 = 14;
 int led4 = 15;
- 
+int LiNe = 0;
+
+
+
 void setup()
 { // initialize both serial ports:
  Serial.begin(9600);
@@ -39,11 +46,9 @@ void setup()
  
   // wake up the GSM shield
 M590.begin(9600);
- // log on to cell network in the sketch.
- // AT+CFUN=15 will reset the module, then set normal mode AT+CFUN=1
- // Module returns +PBREADY on connection........
+ // give time to log on to network.
 delay(5500);
-M590.print("ATE0\r");  // Echo off, I had some issues.....
+M590.print("ATE0\r");
 delay(500);
 M590.print("AT+CMGF=1\r");  // set SMS mode to text
 Serial.println("set SMS mode to txt");  // set SMS mode to text
@@ -65,11 +70,6 @@ delay(5500);
 M590.println("AT+CMGD=1,4"); // delete all SMS
 Serial.println("delete all SMS"); // delete all SMS
 delay(2500);
-
-M590.flush();
-delay(2500);
-Serial.flush();
-delay(2500);
 while(Serial.available() > 0) {
     char t = Serial.read();
   }
@@ -79,118 +79,80 @@ while(M590.available() > 0) {
   Serial.println("Ready...");
 }
 
+
+
+
 void smsG()
 {
-    inchar=M590.read(); 
-    //Serial.write(inchar);
-    callID += inchar;
-    if (inchar == '\n'){// Data +CMT: "+440000000000"
+  delay(50);
+  inchar=M590.read(); 
+  delay(50);
+  callID += inchar;
+  if (inchar == '\n'){// Data +CMT: "+440000000000"
      Serial.println(callID);
-     StrCallID = callID.substring(1,4);
-    if (StrCallID =="CMT"){
+     StrCallID = callID.substring(0,4);
+   if (StrCallID =="+CMT"){
       StrCallID1 = "";
       StrCallID1 += callID.substring(8,20);
       Serial.print("The Caller ID to Verify : ");
       Serial.println(StrCallID1);
-    if (StrCallID1 == conTrol){
+     if (StrCallID1 == conTrol){
       Serial.println("Number Verified.....");
-    }else{
-    Serial.println("Verification Failed, Control Not Permitted");
-    }
-      callID="";
+      if (LiNe == 0){conTrolF = true;}
+      }else{
+      Serial.println("Verification Failed, Control Not Permitted");
+      conTrolF = false;
       }
-      callID="";
-      }
-  if (StrCallID1 == conTrol){
-    if (inchar=='#')
-    {
-      callID = "";
- 
-      inchar=M590.read(); 
-      if (inchar=='a')
-      {     
-        inchar=M590.read();
-        if (inchar=='0')
-        {
+    callID="";
+    }else if (StrCallID =="#a00"){
           digitalWrite(led1, LOW);
           Serial.println("LED1 off");
-        } 
-        else if (inchar=='1')
-        {
+    }else if (StrCallID =="#a01"){
           digitalWrite(led1, HIGH);
           Serial.println("LED1 on");
-        }
-         }
-       else if (inchar=='b')
-        {
-          inchar=M590.read(); 
-          if (inchar=='0')
-          {
-            digitalWrite(led2, LOW);
-            Serial.println("LED2 off");
-          } 
-          else if (inchar=='1')
-          {
-            digitalWrite(led2, HIGH);
-            Serial.println("LED2 on");
-          }
-          }
-         else if (inchar=='c')
-          {
-            inchar=M590.read(); 
-            if (inchar=='0')
-            {
-              digitalWrite(led3, LOW);
-              Serial.println("LED3 off");
-            } 
-            else if (inchar=='1')
-            {
-              digitalWrite(led3, HIGH);
-              Serial.println("LED3 on");
-            }
-          }
-          else if (inchar=='d')
-          {
-              inchar=M590.read(); 
-              if (inchar=='0')
-              {
-                digitalWrite(led4, LOW);
-                Serial.println("LED4 off");
-              } 
-              else if (inchar=='1')
-              {
-                digitalWrite(led4, HIGH);
-                Serial.println("LED4 on");
-              }
-            }
-            else if (inchar=='e')
-            {
-              inchar=M590.read(); 
-              if (inchar=='0')
-              {
+    }else if (StrCallID =="#b00"){
+          digitalWrite(led2, LOW);
+          Serial.println("LED2 off");
+    }else if (StrCallID =="#b01"){
+          digitalWrite(led2, HIGH);
+          Serial.println("LED2 on");
+    }else if (StrCallID =="#c00"){
+          digitalWrite(led3, LOW);
+          Serial.println("LED3 off");
+    }else if (StrCallID =="#c01"){
+          digitalWrite(led3, HIGH);
+          Serial.println("LED3 on");
+    }else if (StrCallID =="#d00"){
+          digitalWrite(led4, LOW);
+          Serial.println("LED4 off");
+    }else if (StrCallID =="#d01"){
+          digitalWrite(led4, HIGH);
+          Serial.println("LED4 on");
+    }else if (StrCallID =="#e00"){
+      if (conTrolF == true){
               delay(250);
               int analogV = analogRead(A0);
               String analogS = "";
               analogS += analogV;
               delay(250);
-              M590.print("AT+CMGS=\"" + StrCallID1 + "\"\r\n");  // Number to reply to from incomming message
-              delay(1500);
-              M590.print("Sensor Value = ");//message content
-              delay(500);
-              M590.print(analogS);//message content
-              delay(500);
-              M590.write(0x1a);     // send out SMS
-              delay(1000);
-              }
-              else if (inchar=='1')
-              {
+              Serial.println("SMS Content : " + analogS);
+            //  M590.print("AT+CMGS=\"" + StrCallID1 + "\"\r\n");  // Number to reply to from incomming message
+            //  delay(2000);
+            //  M590.print("Sensor Value = " + analogS);//message content
+            //  delay(1000);
+            //  M590.write(0x1a);     // send out SMS
+            //  delay(2000);
+      }
+    }else if (StrCallID =="#e01"){
+      if (conTrolF == true){
              Serial.println("delete all SMS....");
              M590.println("AT+CMGD=1,4"); // delete all SMS
-             Serial.println("All SMS Deleted"); // delete all SMS   
-             }
-          }
+             Serial.println("All SMS Deleted"); // delete all SMS  
       }
-   }
+    }
+  callID="";
+  LiNe++;
+  }
 } 
  
 void loop() 
@@ -198,7 +160,7 @@ void loop()
   while(M590.available()){
     smsG();
   }
+  conTrolF = false;
+  LiNe = 0;
     //This is where to do some interesting stuff......
 }
-    
-  
